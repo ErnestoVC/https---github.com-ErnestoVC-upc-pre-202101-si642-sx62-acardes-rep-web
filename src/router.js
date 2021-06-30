@@ -5,8 +5,6 @@ import Rol from './components/Rol.vue'
 import Usuario from './components/Usuario.vue'
 import Cliente from './components/Cliente.vue'
 import Login from './components/Login.vue'
-import Ingreso from './components/Ingreso.vue'
-import ConsultaVenta from './components/ConsultaVenta.vue'
 import store from './store'
 import Gasto from './components/Gasto.vue'
 import Cartera from './components/Cartera.vue'
@@ -69,15 +67,7 @@ var router = new Router({
         administrador :true,
         trabajador: true
       }
-    },
-    {
-      path: '/consultaventas',
-      name: 'consultaventas',
-      component: ConsultaVenta,
-      meta :{
-        administrador :true
-      }
-    },    
+    },   
     {
       path: '/login',
       name: 'login',

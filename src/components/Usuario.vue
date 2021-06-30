@@ -36,7 +36,7 @@
                                     </v-select>
                                 </v-flex>
                                 <v-flex xs12 sm6 md6>
-                                    <v-text-field v-model="num_documento" label="Número Documento">
+                                    <v-text-field :rules="numberRules" v-model="num_documento" label="Número Documento">
                                     </v-text-field>
                                 </v-flex>
                                 <v-flex xs12 sm6 md6>
@@ -48,7 +48,7 @@
                                     </v-text-field>
                                 </v-flex>
                                 <v-flex xs12 sm6 md6>
-                                    <v-text-field v-model="email" label="Email">
+                                    <v-text-field :rules="emailRules" v-model="email" label="Email">
                                     </v-text-field>
                                 </v-flex>
                                 <v-flex xs12 sm6 md6>
@@ -177,11 +177,17 @@
                 ],
                 nombre:'',
                 tipo_documento: '',
-                documentos: ['DNI','RUC','PASAPORTE','CEDULA'],
+                documentos: ['DNI','RUC','PASAPORTE','CARNET DE EXTRANJERIA'],
                 num_documento: '',
                 direccion: '',
                 telefono: '',
                 email: '',
+                emailRules: [
+                v => !!v || 'El E-mail es requerido',
+                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'El E-mail debe ser válido.',
+                ],
+                numberRules: [v => !!v || 'Este campo es requerido',
+                                v => /^\d+$/.test(v)||'Este campo solo acepta números'],
                 password:'',
                 actPassword:false,
                 passwordAnt:'',
@@ -332,6 +338,19 @@
                 if (!this.tipo_documento){
                     this.validaMensaje.push("Seleccione un tipo documento.");
                 }
+                if(this.tipo_documento === "DNI" && this.num_documento.length != 8){
+                    this.validaMensaje.push("El DNI debe tener 8 digitos.");
+                }
+                if(this.tipo_documento === "RUC" && this.num_documento.length != 11){
+                    this.validaMensaje.push("El RUC debe tener 11 digitos.");
+                }
+                if(this.tipo_documento === "PASAPORTE" && this.num_documento.length != 12){
+                    this.validaMensaje.push("El PASAPORTE debe tener 12 digitos.");
+                }
+                if(this.tipo_documento === "CARNET DE EXTRANJERIA" && this.num_documento.length != 12){
+                    this.validaMensaje.push("El CARNET DE EXTRANJERIA debe tener 12 digitos.")
+                }
+                
 
                 if (!this.email){
                     this.validaMensaje.push("Ingrese el email del usuario.");

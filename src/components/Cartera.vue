@@ -231,19 +231,19 @@
                         </v-data-table>                        
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field type="number" readonly v-model="valor_entregado" label="Valor Entregado"> {{calcularValorEntregado}}
+                        <v-text-field type="number" readonly v-model="valor_entregado" label="Valor Entregado">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field type="number" readonly v-model="valor_recibido" label="Valor Recibido"> {{calcularValorRecibido}}
+                        <v-text-field type="number" readonly v-model="valor_recibido" label="Valor Recibido">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field type="number" readonly v-model="valor_neto" label="Valor Neto">{{calcularValorNeto}}
+                        <v-text-field type="number" readonly v-model="valor_neto" label="Valor Neto">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field type="number" readonly v-model="TCEA" label="TCEA">{{calcularTCEA}}
+                        <v-text-field type="number" readonly v-model="TCEA" label="TCEA">
                         </v-text-field>
                     </v-flex>
                     
@@ -254,6 +254,7 @@
                     <v-flex xs12 sm12 md12 lg12 xl12>
                         <v-btn @click="ocultarNuevo()" color="blue darken-1" flat>Cancelar</v-btn>
                         <v-btn v-if="verDet==0" @click="guardar()" color="success">Guardar</v-btn>
+                        <v-btn color="primary" @click="calcularValores">Calcular</v-btn>
                     </v-flex>
 		        </v-layout>
             </v-container>
@@ -308,7 +309,7 @@
                  serie_comprobante: '',
                  num_comprobante: '',
                  fecha_emision: '',
-                 valor: 0,
+                 valor: 0.0,
                  tipo_valor: '',
                  tipoValores: ['Procentaje', 'Valor'],
                  fecha_pago: '',
@@ -326,13 +327,13 @@
                  codigo: '',
                  verNuevo: 0,
                  errorGasto:null,
-                 totalGastoInicial: 0,
+                 totalGastoInicial: 0.0,
                  tipo_gasto: '',
                  tipoGastos: ['Inicial', 'Final'],
                  totalGastoFinal: 0.0,
                  capaitalizacion: '',
-                 capitalizaciones:['Diaria', 'Semanal', 'Quincenal', 'Semestral', 'Anual'],
-                 descuento: 0,
+                 capitalizaciones:['No hay','Diaria', 'Semanal', 'Quincenal', 'Mensual' ,'Semestral', 'Anual'],
+                 descuento: 0.0,
                  cabeceraGastos: [
                      { text: 'Seleccionar', value: 'seleccionar', sortable: false  },
                      { text: 'Nombre', value: 'nombre', sortable: false  },
@@ -357,7 +358,7 @@
                  email:'',
                  TCEA: 0.0,
                  conversion: '',
-                 valorM: 0,
+                 valorM: 0.0,
                  dias: 0,
                  tasaPeriodo: 0.0,
                  tasaDescontada: 0.0,
@@ -365,94 +366,13 @@
              }
          },
          computed:{
-                calcularGastoFinales:function(){                 
-                    for(var i=0;i<this.detalles.length;i++){
-                            if(detalles[i].tipo_gasto==="Final"){
-                                if(detalles[i].tipo_valor==="Porcentaje"){
-                                   return this.totalGastoFinal = this.totalGastoFinal + (this.detalles[i].valor*this.valor_nominal);
-                                } else {
-                                    return this.totalGastoFinal = this.totalGastoFinal + this.detalles[i].valor;
-                                }
-                            }
-                        }
-                },
-
-                calcularGastosIniciales:function(){
-                    if(this.tipo_gasto == 'Inicial'){
-                        for(var i=0;i<this.detalles.length;i++){
-                            if(detalles[i].tipo_valor=="Porcentaje"){
-                                return this.totalGastoInicial = this.totalGastoInicial + (this.detalles[i].valor*this.valor_nominal);
-                            } else {
-                                return this.totalGastoInicial = this.totalGastoInicial + this.detalles[i].valor;
-                            }
-                        }
-                    }                   
-                },
-                calcularM:function(){
-                    if(this.capaitalizacion == "Diaria"){
-                        return this.valorM = 360;
-                    }
-                    else if(this.capaitalizacion == "Quincenal"){
-                        return this.valorM = 24;
-                    }
-                    else if(this.capaitalizacion == "Mensual"){
-                        return this.valorM = 12;
-                    }
-                    else if(this.capaitalizacion == "Semestral"){
-                        return this.valorM = 2;
-                    }
-                    else if(this.capaitalizacion == "Semanal"){
-                        return this.valorM = 48;
-                    }
-                    else {
-                        return this.valorM = 1;
-                    }
-                },
-                ConvertirNominalAEfectiva:function(){
-                    var tempM = calcularM();
-                    if(this.tipo_tasa == "Tasa Nominal Anual"){
-                        return this.conversion = Math.pow((1+(this.tasa/this.tempM)), this.tempM) - 1;
-                    }
-                },
-                calcularTasaDelPeriodo:function(){
-                    var fInicial = moment(this.fecha_pago).format();
-                    var fFinal = moment(this.fecha_descuento).format();
-                    var dias = fFinal.diff(fInicial, 'days');
-                    var factor = 0.0;
-                    factor = dias/360;
-                    if(this.tipo_tasa == "Tasa Nominal Anual"){                     
-                        return this.tasaPeriodo = Math.pow((1 + this.conversion), this.factor) - 1
-                    }
-                    else {
-                        return this.tasaPeriodo = Math.pow((1 + this.tasa), this.factor) - 1
-                    }
-                },
-                calcularTasaDescontada:function(){
-                    return this.tasaDescontada = this.tasaPeriodo / (1 + this.tasaPeriodo);
-                },
-                calcularDescuento: function(){
-                    return this.descuento = this.valor_nominal * this.tasaDescontada;         
-                },
-                calcularValorNeto: function(){
-                    return this.valor_neto = this.valor_nominal - this.descuento;
-                },
-                calcularValorRecibido: function(){
-                    return this.valor_recibido = this.valor_neto - this.totalGastoInicial;
-                },
-                calcularValorEntregado: function(){
-                   return  this.valor_entregado = this.valor_nominal + this.totalGastoFinal;                    
-                },
-                calcularTCEA:function(){
-                    var fInicial = moment(this.fecha_pago, 'DD/MM/YYYY');
-                    var fFinal = moment(this.fecha_descuento, 'DD/MM/YYYY');
-                    var dias = fFinal.diff(fInicial, 'days');
-                    return this.TCEA = Math.pow((this.valor_entregado/this.valor_recibido),360/dias) - 1;
-                }
+                
          },
         watch: {
             dialog (val) {
             val || this.close()
-            }
+            },
+            
         },
 
         created () {
@@ -501,7 +421,7 @@
                  this.detalles.push({
                      idgasto: data['idgasto'],
                      nombre: data['nombre'],
-                     valor: 0,
+                     valor: 0.0,
                      tipo_valor: '',
                      tipo_gasto: ''
                  });
@@ -592,7 +512,7 @@
                  this.TCEA = '';
                  this.verDet = 0;
                  this.conversion = 0.0;
-                 this.valorM = 0;
+                 this.valorM = 0.0;
                  this.dias = 0;
                  this.tasaPeriodo = 0.0;
                  this.tasaDescontada = 0.0;
@@ -704,6 +624,75 @@
                 }).catch(function(error){
                     console.log(error);
                 });
+            },
+            calcularValores(){
+                let me = this;
+                const gastosfinales = 0.0;
+                const gastosiniciales = 0.0;
+                const fecha1 = moment(me.fecha_pago,"DD/MM/AAAA");
+                const fecha2 = moment(me.fecha_descuento, "DD/MM/AAAA");
+                const dias = fecha2.diff(fecha1, "days");
+                const periodo = 0.0;
+                const tdescont = 0.0;
+                for(var i=0;i<me.detalles.length;i++){
+                    if(me.detalles[i].tipo_valor === "Porcentaje" && me.detalles[i].tipo_gasto === "Inicial"){
+                        gastosiniciales = gastosiniciales + me.detalles[i].valor*me.valor_nominal;
+                        me.totalGastoInicial = gastosiniciales.toFixed(2);
+                    }
+                    else if(me.detalles[i].tipo_valor === "Valor" && me.detalles[i].tipo_gasto === "Inicial"){
+                        gastosiniciales = gastosiniciales + me.detalles[i].valor;
+                        me.totalGastoInicial = gastosiniciales.toFixed(2);
+                    }
+                    else if(me.detalles[i].tipo_valor === "Porcentaje" && me.detalles[i].tipo_gasto === "Final"){
+                        gastosfinales = gastosfinales + me.detalles[i].valor*me.valor_nominal;
+                        me.totalGastoFinal = gastosfinales.toFixed(2);
+                    }
+                    else if(me.detalles[i].tipo_valor === "Valor" && me.detalles[i].tipo_gasto === "Final"){
+                        gastosfinales = gastosfinales + me.detalles[i].valor;
+                        me.totalGastoFinal = gastosfinales.toFixed(2);
+                    }
+                }
+                if(me.capaitalizacion.length > 0){
+                    if(me.capaitalizacion === 'No hay'){
+                        me.valorM = 0;
+                    }
+                    else if(me.capaitalizacion === "Diaria"){
+                        me.valorM = 360;
+                    } else if(me.capaitalizacion === "Semanal"){
+                        me.valorM = 48;
+                    } else if(me.capaitalizacion === "Quincenal"){
+                        me.valorM = 24;
+                    } else if(me.capaitalizacion === "Mensual"){
+                        me.valorM = 12;
+                    } else if(me.capaitalizacion === "Semestral"){
+                        me.valorM = 2;
+                    } else if(me.capaitalizacion === "Anual"){
+                        me.valorM = 1;
+                    }
+                }
+                if(me.tipo_tasa === "Tasa Nominal Anual"){
+                    me.tasaPeriodo = (Math.pow(1+me.conversion,dias/360)-1).toFixed(2);
+                }
+                else if(me.tipo_tasa === "Tasa Efectiva Anual"){
+                    me.tasaPeriodo = (math.pow(1+me.tasa,dias/360)-1).toFixed(2);
+                }
+                me.tasaDescontada = me.tasaPeriodo / (1 + me.tasaPeriodo);
+                me.descuento = me.valor_nominal * me.tasaDescontada;
+                me.valor_neto = me.valor_nominal - me.descuento;
+                me.valor_recibido = (me.valor_neto - me.totalGastoInicial);
+                me.valor_entregado = me.valor_nominal + me.totalGastoFinal;
+                me.TCEA = (Math.pow(me.valor_entregado / me.valor_recibido, 360 / dias) - 1).toFixed(2);
+                console.log(me.gastosfinales);
+                console.log(me.gastosiniciales);
+                console.log(me.valorM);
+                console.log(me.tasaPeriodo);
+                console.log(me.tasaDescontada);
+                console.log(me.descuento);
+                console.log(me.valor_neto);
+                console.log(me.valor_recibido);
+                console.log(me.valor_entregado);
+                console.log(me.TCEA);
+
             }
          }
      }
