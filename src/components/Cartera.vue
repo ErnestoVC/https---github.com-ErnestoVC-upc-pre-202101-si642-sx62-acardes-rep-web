@@ -635,21 +635,17 @@
                 const periodo = 0.0;
                 const tdescont = 0.0;
                 for(var i=0;i<me.detalles.length;i++){
-                    if(me.detalles[i].tipo_valor === "Porcentaje" && me.detalles[i].tipo_gasto === "Inicial"){
-                        gastosiniciales = gastosiniciales + me.detalles[i].valor*me.valor_nominal;
-                        me.totalGastoInicial = gastosiniciales.toFixed(2);
+                    if(me.detalles[i].tipo_valor == "Porcentaje" && me.detalles[i].tipo_gasto == "Inicial"){
+                        me.totalGastoInicial = totalGastoInicial + me.detalles[i].valor*me.valor_nominal;
                     }
-                    else if(me.detalles[i].tipo_valor === "Valor" && me.detalles[i].tipo_gasto === "Inicial"){
-                        gastosiniciales = gastosiniciales + me.detalles[i].valor;
-                        me.totalGastoInicial = gastosiniciales.toFixed(2);
+                    else if(me.detalles[i].tipo_valor == "Valor" && me.detalles[i].tipo_gasto == "Inicial"){
+                        me.totalGastoInicial = totalGastoInicial + me.detalles[i].valor;
                     }
-                    else if(me.detalles[i].tipo_valor === "Porcentaje" && me.detalles[i].tipo_gasto === "Final"){
-                        gastosfinales = gastosfinales + me.detalles[i].valor*me.valor_nominal;
-                        me.totalGastoFinal = gastosfinales.toFixed(2);
+                    else if(me.detalles[i].tipo_valor == "Porcentaje" && me.detalles[i].tipo_gasto == "Final"){
+                        me.totalGastoFinal = totalGastoFinal + me.detalles[i].valor*me.valor_nominal;
                     }
-                    else if(me.detalles[i].tipo_valor === "Valor" && me.detalles[i].tipo_gasto === "Final"){
-                        gastosfinales = gastosfinales + me.detalles[i].valor;
-                        me.totalGastoFinal = gastosfinales.toFixed(2);
+                    else if(me.detalles[i].tipo_valor == "Valor" && me.detalles[i].tipo_gasto == "Final"){
+                        me.totalGastoFinal = totalGastoFinal + me.detalles[i].valor;
                     }
                 }
                 if(me.capaitalizacion.length > 0){
@@ -682,8 +678,8 @@
                 me.valor_recibido = (me.valor_neto - me.totalGastoInicial);
                 me.valor_entregado = me.valor_nominal + me.totalGastoFinal;
                 me.TCEA = (Math.pow(me.valor_entregado / me.valor_recibido, 360 / dias) - 1).toFixed(2);
-                console.log(me.gastosfinales);
-                console.log(me.gastosiniciales);
+                console.log(me.totalGastoFinal);
+                console.log(me.totalGastoInicial);
                 console.log(me.valorM);
                 console.log(me.tasaPeriodo);
                 console.log(me.tasaDescontada);
