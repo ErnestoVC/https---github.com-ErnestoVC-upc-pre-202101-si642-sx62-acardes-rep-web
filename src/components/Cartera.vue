@@ -2,7 +2,7 @@
     <v-layout align-start>
         <v-flex>
             <v-toolbar flat color="white">
-                <v-toolbar-title>Ingresos</v-toolbar-title>
+                <v-toolbar-title>Carteras</v-toolbar-title>
                     <v-divider
                     class="mx-2"
                     inset
@@ -13,10 +13,10 @@
                     <v-btn v-if="verNuevo==0" @click="listar()" color="primary" dark class="mb-2">Buscar</v-btn>
                     <v-spacer></v-spacer>
                     <v-btn v-if="verNuevo==0" @click="mostrarNuevo" color="primary" dark class="mb-2">Nuevo</v-btn>
-                    <v-dialog v-model="verArticulos" max-width="1000px">
+                    <v-dialog v-model="verGastos" max-width="1000px">
                         <v-card>
                             <v-card-title>
-                                <span class="headline">Seleccione un artículo</span>
+                                <span class="headline">Seleccione un gasto</span>
                             </v-card-title>
                             <v-card-text>
                                 <v-container grid-list-md>
@@ -24,13 +24,13 @@
                                         <v-flex xs12 sm12 md12 lg12 xl12>
                                             <v-text-field append-icon="search" 
                                             class="text-xs-center" v-model="texto"
-                                            label="Ingrese artículo a buscar" @keyup.enter="listarArticulo()">
+                                            label="Ingrese artículo a buscar" @keyup.enter="listarGastos()">
 
                                             </v-text-field>
                                             <template>
                                                <v-data-table
-                                                    :headers="cabeceraArticulos"
-                                                    :items="articulos"
+                                                    :headers="cabeceraGastos"
+                                                    :items="gastos"
                                                     class="elevation-1"
                                                 >
                                                     <template slot="items" slot-scope="props">
@@ -43,14 +43,11 @@
                                                             add
                                                             </v-icon>
                                                         </td>
-                                                        <td>{{ props.item.nombre }}</td>
-                                                        <td>{{props.item.categoria}}</td>
+                                                        <td>{{props.item.nombre}}</td>
                                                         <td>{{props.item.descripcion}}</td>
-                                                        <td>{{props.item.stock}}</td>
-                                                        <td>{{props.item.precio_venta}}</td>
                                                     </template>
                                                     <template slot="no-data">
-                                                        <h3>No hay artículos para mostrar.</h3>
+                                                        <h3>No hay gastos para mostrar.</h3>
                                                     </template>
                                                 </v-data-table> 
                                             </template>
@@ -60,7 +57,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn @click="ocultarArticulos()" color="blue darken" flat>
+                                <v-btn @click="ocultarGasto()" color="blue darken" flat>
                                     Cancelar
                                 </v-btn>
                             </v-card-actions>
@@ -94,7 +91,7 @@
                 </v-toolbar>
             <v-data-table
                 :headers="headers"
-                :items="ingresos"
+                :items="carteras"
                 :search="search"
                 class="elevation-1"
                 v-if="verNuevo==0"
@@ -118,13 +115,21 @@
                         </template>
                     </td>
                     <td>{{ props.item.usuario }}</td>
-                    <td>{{ props.item.proveedor}}</td>
-                    <td>{{ props.item.tipo_comprobante }}</td>
+                    <td>{{ props.item.cliente }}</td>
                     <td>{{ props.item.serie_comprobante }}</td>
                     <td>{{ props.item.num_comprobante }}</td>
-                    <td>{{ props.item.fecha_hora }}</td>
-                    <td>{{ props.item.impuesto }}</td>
-                    <td>{{ props.item.total }}</td>
+                    <td>{{ props.item.fecha_emision }}</td>
+                    <td>{{ props.item.fecha_pago }}</td>
+                    <td>{{ props.item.fecha_descuento }}</td>
+                    <td>{{ props.item.moneda }}</td>
+                    <td>{{ props.item.tipo_tasa }}</td>
+                    <td>{{ props.item.tasa }}</td>
+                    <td>{{ props.item.capaitalizacion }}</td>
+                    <td>{{ props.item.valor_entregado }}</td>
+                    <td>{{ props.item.valor_entregado }}</td>
+                    <td>{{ props.item.valor_nominal }}</td>
+                    <td>{{ props.item.valor_neto }}</td>
+                    <td>{{ props.item.TCEA }}</td>
                     <td>
                         <div v-if="props.item.estado=='Aceptado'">
                             <span class="blue--text">Aceptado</span>
@@ -139,40 +144,63 @@
                 </template>
             </v-data-table>
             <v-container grid-list-sm class="pa-4 white" v-if="verNuevo">
-                <v-layout row wrap>
+                <v-layout row wrap>                    
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-select v-model="tipo_comprobante" 
-                        :items="comprobantes" label="Tipo Comprobante">
-                        </v-select>
-                    </v-flex>
-                    <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field v-model="serie_comprobante" label="Serie Comprobante">
+                        <v-text-field type="number" v-model="serie_comprobante" label="Serie Comprobante">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field v-model="num_comprobante" label="Número Comprobante">
+                        <v-text-field type="number" v-model="num_comprobante" label="Número Comprobante">
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="date" class="text-xs-center" v-model="fecha_emision" label="Fecha Emision"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="date" class="text-xs-center" v-model="fecha_pago" label="Fecha Pago"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="date" class="text-xs-center" v-model="fecha_descuento" label="Fecha Descuento"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-select v-model="moneda" 
+                        :items="monedas" label="Moneda">
+                        </v-select>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-select v-model="tipo_tasa" 
+                        :items="tipoTasas" label="Tipo Tasas">
+                        </v-select>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" v-model="tasa" label="Tasa en decimales">
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-select v-model="capaitalizacion" 
+                        :items="capitalizaciones" label="Tipo Capitalizaciones">
+                        </v-select>
+                    </v-flex>                    
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" v-model="valor_nominal" label="Valor Nominal">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm8 md8 lg8 xl8>
-                        <v-select v-model="idproveedor"
-                        :items="proveedores" label="Proveedor">
+                        <v-select v-model="idcliente"
+                        :items="clientes" label="Clientes">
                         </v-select>
-                    </v-flex>
-                    <v-flex xs12 sm4 md4 lg4 xl4>
-                        <v-text-field type="number" v-model="impuesto" label="Impuesto">
-                        </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm8 md8 lg8 xl8>
                         <v-text-field @keyup.enter="buscarCodigo()" v-model="codigo" label="Código">
                         </v-text-field>
                     </v-flex>
                     <v-flex xs12 sm2 md2 lg2 xl2>
-                        <v-btn @click="mostrarArticulos()" small fab dark color="teal">
+                        <v-btn @click="mostrarGastos()" small fab dark color="teal">
                             <v-icon dark>list</v-icon>
                         </v-btn>
                     </v-flex>
-                    <v-flex xs12 sm2 md2 lg2 xl2 v-if="errorArticulo">
-                        <div class="red--text" v-text="errorArticulo">
+                    <v-flex xs12 sm2 md2 lg2 xl2 v-if="errorGasto">
+                        <div class="red--text" v-text="errorGasto">
                         </div>
                     </v-flex>
                     <v-flex xs12 sm12 md12 lg12 xl12>
@@ -192,25 +220,33 @@
                                     delete
                                     </v-icon>
                                 </td>
-                                <td>{{ props.item.articulo }}</td>
-                                <td><v-text-field type="number" v-model="props.item.cantidad"></v-text-field></td>
-                                <td><v-text-field type="number" v-model="props.item.precio"></v-text-field></td>
-                                <td>$ {{ props.item.cantidad * props.item.precio}}</td>
+                                <td>{{ props.item.nombre }}</td>
+                                <td><v-text-field type="number" v-model="props.item.valor"></v-text-field></td>
+                                <td><v-select v-model="tipo_valor" :items="tipoValores" label="Tipo Valores"></v-select></td>
+                                <td><v-select v-model="tipo_gasto" :items="tipoGastos" label="Tipo Gastos"></v-select></td>
                             </template>
                             <template slot="no-data">
                                 <h3>No hay artículos agregados al detalle.</h3>
                             </template>
-                        </v-data-table>
-                        <v-flex class="text-xs-right">
-                            <strong>Total Parcial: </strong>$ {{totalParcial=(total-totalImpuesto).toFixed(2)}}
-                        </v-flex>
-                        <v-flex class="text-xs-right">
-                            <strong>Total Impuesto: </strong>$ {{totalImpuesto=((total*impuesto)/(100+impuesto)).toFixed(2)}}
-                        </v-flex>
-                        <v-flex class="text-xs-right">
-                            <strong>Total Neto: </strong>$ {{total=(calcularTotal).toFixed(2)}}
-                        </v-flex>
+                        </v-data-table>                        
                     </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" readonly v-model="valor_entregado" label="Valor Entregado"> {{calcularValorEntregado}}
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" readonly v-model="valor_recibido" label="Valor Recibido"> {{calcularValorRecibido}}
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" readonly v-model="valor_neto" label="Valor Neto">{{calcularValorNeto}}
+                        </v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm4 md4 lg4 xl4>
+                        <v-text-field type="number" readonly v-model="TCEA" label="TCEA">{{calcularTCEA}}
+                        </v-text-field>
+                    </v-flex>
+                    
                     <v-flex xs12 sm12 md12 lg12 xl12>
                         <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v">
                         </div>
@@ -231,13 +267,16 @@
      export default{
          data(){
              return {
+                 fromDateVal: null,
+
+                 minDate: "2019-07-04",
+                 maxDate: "2019-08-30",
                  carteras:[],
                  dialog: false,
                  headers: [
                      { text: 'Opciones', value: 'opciones', sortable: false },
                      { text: 'Usuario', value: 'usuario', sortable: true },
                      { text: 'Cliente', value: 'cliente', sortable: true },
-                     { text: 'Opciones', value: 'opciones', sortable: false },
                      { text: 'Serie Comprobante', value: 'serie_comprobante', sortable: false  },
                      { text: 'Número Comprobante', value: 'num_comprobante', sortable: false  },
                      { text: 'Fecha Emision', value: 'fecha_emision', sortable: false  },
@@ -254,7 +293,7 @@
                      { text: 'TCEA', value: 'TCEA', sortable: false  }
                  ],
                  cabeceraDetalles:[
-                     { text: 'Seleccionar', value: 'seleccionar', sortable: false  },
+                     { text: 'Borrar', value: 'borrar', sortable: false  },
                      { text: 'Gasto', value: 'gasto', sortable: false  },
                      { text: 'Valor', value: 'valor', sortable: false  },
                      { text: 'Tipo Valor', value: 'tipo_valor', sortable: false  },
@@ -264,7 +303,7 @@
                  detalles:[],
                  search: '',
                  id: '',
-                 idclientes: '',
+                 idcliente: '',
                  clientes: [],
                  serie_comprobante: '',
                  num_comprobante: '',
@@ -279,27 +318,23 @@
                  moneda: '',
                  tipoTasas: ['Tasa Efectiva Anual','Tasa Nominal Anual'],
                  tipo_tasa: '',
-                 valor_entregado: 0,
-                 valor_recibido: 0,
-                 valor_nominal: 0,
-                 valor_neto: 0,
-                 TCEA: 0,
+                 valor_entregado: 0.0,
+                 valor_recibido: 0.0,
+                 valor_nominal: 0.0,
+                 valor_neto: 0.0,
+                 TCEA: 0.0,
                  codigo: '',
                  verNuevo: 0,
                  errorGasto:null,
                  totalGastoInicial: 0,
                  tipo_gasto: '',
                  tipoGastos: ['Inicial', 'Final'],
-                 totalGastoFinal: 0,
+                 totalGastoFinal: 0.0,
                  capaitalizacion: '',
-                 fecha_emision: '',
-                 fecha_pago: '',
-                 fecha_descuento: '',
                  capitalizaciones:['Diaria', 'Semanal', 'Quincenal', 'Semestral', 'Anual'],
                  descuento: 0,
                  cabeceraGastos: [
                      { text: 'Seleccionar', value: 'seleccionar', sortable: false  },
-                     { text: 'Codigo', value: 'codigo', sortable: false  },
                      { text: 'Nombre', value: 'nombre', sortable: false  },
                      { text: 'Descripcion', value: 'descripcion', sortable: false  },
                  ],
@@ -320,14 +355,99 @@
                  direccion:'',
                  telefono:'',
                  email:'',
-                 TCEA: 0,
+                 TCEA: 0.0,
                  conversion: '',
                  valorM: 0,
                  dias: 0,
                  tasaPeriodo: 0.0,
                  tasaDescontada: 0.0,
-                 descuento: 0.0,
+                 descuento: 0.0
              }
+         },
+         computed:{
+                calcularGastoFinales:function(){                 
+                    for(var i=0;i<this.detalles.length;i++){
+                            if(detalles[i].tipo_gasto==="Final"){
+                                if(detalles[i].tipo_valor==="Porcentaje"){
+                                   return this.totalGastoFinal = this.totalGastoFinal + (this.detalles[i].valor*this.valor_nominal);
+                                } else {
+                                    return this.totalGastoFinal = this.totalGastoFinal + this.detalles[i].valor;
+                                }
+                            }
+                        }
+                },
+
+                calcularGastosIniciales:function(){
+                    if(this.tipo_gasto == 'Inicial'){
+                        for(var i=0;i<this.detalles.length;i++){
+                            if(detalles[i].tipo_valor=="Porcentaje"){
+                                return this.totalGastoInicial = this.totalGastoInicial + (this.detalles[i].valor*this.valor_nominal);
+                            } else {
+                                return this.totalGastoInicial = this.totalGastoInicial + this.detalles[i].valor;
+                            }
+                        }
+                    }                   
+                },
+                calcularM:function(){
+                    if(this.capaitalizacion == "Diaria"){
+                        return this.valorM = 360;
+                    }
+                    else if(this.capaitalizacion == "Quincenal"){
+                        return this.valorM = 24;
+                    }
+                    else if(this.capaitalizacion == "Mensual"){
+                        return this.valorM = 12;
+                    }
+                    else if(this.capaitalizacion == "Semestral"){
+                        return this.valorM = 2;
+                    }
+                    else if(this.capaitalizacion == "Semanal"){
+                        return this.valorM = 48;
+                    }
+                    else {
+                        return this.valorM = 1;
+                    }
+                },
+                ConvertirNominalAEfectiva:function(){
+                    var tempM = calcularM();
+                    if(this.tipo_tasa == "Tasa Nominal Anual"){
+                        return this.conversion = Math.pow((1+(this.tasa/this.tempM)), this.tempM) - 1;
+                    }
+                },
+                calcularTasaDelPeriodo:function(){
+                    var fInicial = moment(this.fecha_pago).format();
+                    var fFinal = moment(this.fecha_descuento).format();
+                    var dias = fFinal.diff(fInicial, 'days');
+                    var factor = 0.0;
+                    factor = dias/360;
+                    if(this.tipo_tasa == "Tasa Nominal Anual"){                     
+                        return this.tasaPeriodo = Math.pow((1 + this.conversion), this.factor) - 1
+                    }
+                    else {
+                        return this.tasaPeriodo = Math.pow((1 + this.tasa), this.factor) - 1
+                    }
+                },
+                calcularTasaDescontada:function(){
+                    return this.tasaDescontada = this.tasaPeriodo / (1 + this.tasaPeriodo);
+                },
+                calcularDescuento: function(){
+                    return this.descuento = this.valor_nominal * this.tasaDescontada;         
+                },
+                calcularValorNeto: function(){
+                    return this.valor_neto = this.valor_nominal - this.descuento;
+                },
+                calcularValorRecibido: function(){
+                    return this.valor_recibido = this.valor_neto - this.totalGastoInicial;
+                },
+                calcularValorEntregado: function(){
+                   return  this.valor_entregado = this.valor_nominal + this.totalGastoFinal;                    
+                },
+                calcularTCEA:function(){
+                    var fInicial = moment(this.fecha_pago, 'DD/MM/YYYY');
+                    var fFinal = moment(this.fecha_descuento, 'DD/MM/YYYY');
+                    var dias = fFinal.diff(fInicial, 'days');
+                    return this.TCEA = Math.pow((this.valor_entregado/this.valor_recibido),360/dias) - 1;
+                }
          },
         watch: {
             dialog (val) {
@@ -349,7 +469,7 @@
              },
              buscarCodigo(){
                 let me=this;
-                me.errorArticulo=null;
+                me.errorGasto=null;
                 let header={"Authorization" : "Bearer " + this.$store.state.token};
                 let configuracion= {headers : header};
                 axios.get('api/Gasto/BuscarCodigoGasto/'+this.codigo,configuracion)
@@ -377,16 +497,17 @@
              ocultarGasto(){
                  this.verGastos = 0;
              },
-             agregarDetalle(){
+             agregarDetalle(data = []){
                  this.detalles.push({
                      idgasto: data['idgasto'],
-                     valor: data['valor'],
-                     tipo_valor: data['tipo_valor'],
-                     tipo_gasto: data['tipo_gasto']
+                     nombre: data['nombre'],
+                     valor: 0,
+                     tipo_valor: '',
+                     tipo_gasto: ''
                  });
              },
              eliminarDetalle(arr, item){
-                 var i = arr.indexOd(item);
+                 var i = arr.indexOf(item);
                  if(i !== i){
                      arr.splice(i,1);
                  }
@@ -397,12 +518,193 @@
                 let configuracion= {headers : header};
                 let url='';
                 if(!me.search){
-                    url = 'api/Cartera/Listar';
+                    url = 'api/Cartera/Listar/';
                 }
                 else{
-                    url='api/Cartera/ListarFiltro'
+                    url='api/Cartera/ListarFiltro/' + me.search;
                 }
-             }
+                axios.get(url,configuracion).then(function(response){
+                    me.ingreso = response.data;
+                }).catch(function(error){
+                    console.log(error);
+                })
+             },
+             listarDetalles(){
+                 let me = this;
+                 let header={"Authorization" : "Bearer " + this.$store.state.token};
+                 let configuracion= {headers : header};
+                 axios.get('api/Gasto/ListarDetalle/'+id,configuracion).then(function(response){
+                     me.detalles=response.data;
+                 }).catch(function(error){
+                     console.log(error);
+                 });
+             },
+             verDetalles(item){
+                 this.limpiar(item);
+                 this.serie_comprobante = item.serie_comprobante;
+                 this.num_comprobante = item.num_comprobante;
+                 this.fecha_emision = item.fecha_emision;
+                 this.fecha_pago = item.fecha_pago;
+                 this.fecha_descuento = item.fecha_descuento;
+                 this.moneda = item.moneda;
+                 this.tipo_tasa = item.tipo_tasa;
+                 this.tasa = item.tasa;
+                 this.capaitalizacion = item.capaitalizacion;
+                 this.valor_entregado = item.valor_entregado;
+                 this.valor_recibido = item.valor_recibido;
+                 this.valor_nominal = item.valor_nominal;
+                 this.valor_neto = item.valor_neto;
+                 this.TCEA = item.TCEA;
+                 this.listarDetalles(item.idcartera);
+                 this.varNuevo = 1;
+                 this.verDet = 1;
+             },
+             select(){
+                 let me = this;
+                 var clientesArray = [];
+                 let header={"Authorization" : "Bearer " + this.$store.state.token};
+                 let configuracion= {headers : header};
+                 axios.get('api/Personas/ListarClientes/',configuracion).then(function(response){
+                     clientesArray = response.data;
+                     clientesArray.map(function(x){
+                         me.clientes.push({text: x.nombre,value:x.idcliente});
+                     });
+                 }).catch(function(error){
+                     console.error(error);
+                 });
+             },
+             limpiar(){
+                 this.id="";
+                 this.idcliente="";
+                 this.serie_comprobante = '';
+                 this.num_comprobante = '';
+                 this.fecha_emision = '';
+                 this.fecha_pago = '';
+                 this.fecha_descuento = '';
+                 this.moneda = '';
+                 this.tipo_tasa = '';
+                 this.tasa = 0.0;
+                 this.capaitalizacion = '';
+                 this.valor_entregado = 0.0;
+                 this.valor_recibido = 0.0;
+                 this.valor_nominal = 0.0;
+                 this.valor_neto = 0.0;
+                 this.TCEA = '';
+                 this.verDet = 0;
+                 this.conversion = 0.0;
+                 this.valorM = 0;
+                 this.dias = 0;
+                 this.tasaPeriodo = 0.0;
+                 this.tasaDescontada = 0.0;
+                 this.descuento = 0.0;
+             },
+             guardar () {
+                 if (this.validar()){
+                    return;
+                }
+                let header={"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion= {headers : header};                
+                let me=this;
+                axios.post('api/Gasto/Crear',{
+                    'idcliente':me.idcliente,
+                    'idusuario':me.idusuario,
+                    'serie_comprobante':me.serie_comprobante,
+                    'num_comprobante':me.num_comprobante,
+                    'fecha_emision':me.fecha_emision,
+                    'fecha_pago':me.fecha_pago,
+                    'fecha_descuento':me.fecha_descuento,
+                    'moneda':me.moneda,
+                    'tipo_tasa':me.tipo_tasa,
+                    'tasa':me.tasa,
+                    'capaitalizacion':me.capaitalizacion,
+                    'valor_entregado':me.valor_entregado,
+                    'valor_recibido':me.valor_recibido,
+                    'valor_nominal':me.valor_nominal,
+                    'valor_neto':me.valor_neto,
+                    'TCEA':me.TCEA,
+                    'detalles':me.detalles
+                },configuracion).then(function(response){
+                    me.ocultarNuevo();
+                    me.listar();
+                    me.limpiar();
+                }).catch(function(error){
+                    console.log(error);
+                });
+             },
+             validar(){
+                this.valida=0;
+                this.validaMensaje=[];
+
+                if (!this.idcliente){
+                    this.validaMensaje.push("Seleccione un cliente.");
+                }
+                if (!this.num_comprobante){
+                    this.validaMensaje.push("Ingrese el número de factura.");
+                }
+                if (!this.serie_comprobante){
+                    this.validaMensaje.push("Ingrese la serie de la factura.");
+                }
+                if (!this.fecha_emision){
+                    this.validaMensaje.push("Ingrese la fecha de emision.");
+                }
+                if (!this.fecha_pago){
+                    this.validaMensaje.push("Ingrese la fecha de pago.");
+                }
+                if (!this.fecha_descuento){
+                    this.validaMensaje.push("Ingrese la fecha de descuento.");
+                }
+                if (!this.num_comprobante){
+                    this.validaMensaje.push("Ingrese el número del comprobante.");
+                }
+                if (!this.moneda){
+                    this.validaMensaje.push("Seleccione una moneda.");
+                }
+                if (!this.tipo_tasa){
+                    this.validaMensaje.push("Seleccione un tipo de tasa.");
+                }
+                if (!this.tasa){
+                    this.validaMensaje.push("Ingrese la tasa a utilizar.");
+                }
+                if (!this.capaitalizacion){
+                    this.validaMensaje.push("Ingrese la capitalización del ejemplo.");
+                }
+                if (this.detalles.length<=0){
+                    this.validaMensaje.push("Ingrese al menos un gasto al detalle.");
+                }
+                if (this.validaMensaje.length){
+                    this.valida=1;
+                }
+                return this.valida;
+            },
+            activarDesactivarMostrar(){
+                this.adModal=1;
+                this.adNombre=item.nombre;
+                this.adId = item.idcartera;
+                if(accion==1){
+                    this.adAccion=1;
+                }else if(accion==2){
+                    this.adAccion=2;
+                }else{
+                    this.adModal=0;
+                }
+            },
+            activarDesactivarCerrar(){
+                this.adModal=0;
+            },
+            desactivar(){
+                let me=this;
+                let header={"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion= {headers : header};
+                axios.get('api/Carteras/Anular'+this.adId,configuracion).then(function(response){
+                    me.adModal=0;
+                    me.adAccion=0;
+                    me.adNombre=0;
+                    me.adId='';
+                    me.listar();
+                }).catch(function(error){
+                    console.log(error);
+                });
+            }
          }
      }
  </script>
