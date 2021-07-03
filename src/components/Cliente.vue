@@ -121,8 +121,8 @@
                 telefono: '',
                 email: '',
                 emailRules: [
-                v => !!v || 'E-mail is required',
-                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'E-mail must be valid',
+                v => !!v || 'El correo es requerido.',
+                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'Ingrese un correo válido.',
                 ],
                 numberRules: [v => !!v || 'This field is required',
                                 v => /^\d+$/.test(v)||'This field only accept numbers'],

@@ -8,7 +8,7 @@
                     </v-toolbar-title>
                 </v-toolbar>
                 <v-card-text>
-                    <v-text-field v-model="email" autofocus color="accent" label="Email" required>
+                    <v-text-field v-model="email" :rules="emailRules" autofocus color="accent" label="Email" required>
                     </v-text-field>
                     <v-text-field v-model="password" type="password" color="accent" label="Password" required>
                     </v-text-field>
@@ -32,7 +32,11 @@ export default {
         return {
             email: '',
             password: '',
-            error: null
+            error: null,
+            emailRules: [
+                v => !!v || 'El correo es requerido.',
+                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'Ingrese un correo válido.',
+            ],
         }
     },
     methods :{
