@@ -222,8 +222,8 @@
                                 </td>
                                 <td>{{ props.item.nombre }}</td>
                                 <td><v-text-field type="number" v-model="props.item.valor"></v-text-field></td>
-                                <td><v-select v-model="tipo_valor" :items="tipoValores" label="Tipo Valores"></v-select></td>
-                                <td><v-select v-model="tipo_gasto" :items="tipoGastos" label="Tipo Gastos"></v-select></td>
+                                <td><v-select v-model="props.item.tipo_valor" :items="tipoValores" label="Tipo Valores"></v-select></td>
+                                <td><v-select v-model="props.item.tipo_gasto" :items="tipoGastos" label="Tipo Gastos"></v-select></td>
                             </template>
                             <template slot="no-data">
                                 <h3>No hay artículos agregados al detalle.</h3>
@@ -311,7 +311,7 @@
                  fecha_emision: '',
                  valor: 0.0,
                  tipo_valor: '',
-                 tipoValores: ['Procentaje', 'Valor'],
+                 tipoValores: ['Porcentaje', 'Valor'],
                  fecha_pago: '',
                  fecha_descuento: '',
                  tasa: 0.0,
@@ -627,25 +627,21 @@
             },
             calcularValores(){
                 let me = this;
-                const gastosfinales = 0.0;
-                const gastosiniciales = 0.0;
-                const fecha1 = moment(me.fecha_pago,"DD/MM/AAAA");
-                const fecha2 = moment(me.fecha_descuento, "DD/MM/AAAA");
-                const dias = fecha2.diff(fecha1, "days");
-                const periodo = 0.0;
-                const tdescont = 0.0;
+                var fecha1 = moment(me.fecha_pago,"YYYY/MM/DD");
+                var fecha2 = moment(me.fecha_descuento, "YYYY/MM/DD");
+                var dias = fecha1.diff(fecha2, "days");
                 for(var i=0;i<me.detalles.length;i++){
                     if(me.detalles[i].tipo_valor == "Porcentaje" && me.detalles[i].tipo_gasto == "Inicial"){
-                        me.totalGastoInicial = totalGastoInicial + me.detalles[i].valor*me.valor_nominal;
+                        me.totalGastoInicial = me.totalGastoInicial + (parseFloat(me.detalles[i].valor) * parseFloat(me.valor_nominal));
                     }
                     else if(me.detalles[i].tipo_valor == "Valor" && me.detalles[i].tipo_gasto == "Inicial"){
-                        me.totalGastoInicial = totalGastoInicial + me.detalles[i].valor;
+                        me.totalGastoInicial = me.totalGastoInicial + parseFloat(me.detalles[i].valor);
                     }
                     else if(me.detalles[i].tipo_valor == "Porcentaje" && me.detalles[i].tipo_gasto == "Final"){
-                        me.totalGastoFinal = totalGastoFinal + me.detalles[i].valor*me.valor_nominal;
+                        me.totalGastoFinal = me.totalGastoFinal + (parseFloat(me.detalles[i].valor) * parseFloat(me.valor_nominal));
                     }
                     else if(me.detalles[i].tipo_valor == "Valor" && me.detalles[i].tipo_gasto == "Final"){
-                        me.totalGastoFinal = totalGastoFinal + me.detalles[i].valor;
+                        me.totalGastoFinal = me.totalGastoFinal + parseFloat(me.detalles[i].valor);
                     }
                 }
                 if(me.capaitalizacion.length > 0){
@@ -666,29 +662,31 @@
                         me.valorM = 1;
                     }
                 }
+                
                 if(me.tipo_tasa === "Tasa Nominal Anual"){
-                    me.tasaPeriodo = (Math.pow(1+me.conversion,dias/360)-1).toFixed(2);
+                    me.conversion = Math.pow((1+(parseFloat(me.tasa)/me.valorM)), me.valorM) - 1;
+                }
+
+
+                if(me.tipo_tasa === "Tasa Nominal Anual"){
+                    me.tasaPeriodo = Math.pow(1 + parseFloat(me.conversion), dias / 360) -1;
                 }
                 else if(me.tipo_tasa === "Tasa Efectiva Anual"){
-                    me.tasaPeriodo = (math.pow(1+me.tasa,dias/360)-1).toFixed(2);
+                    me.tasaPeriodo = Math.pow(1 + parseFloat(me.tasa), dias / 360) -1;
                 }
-                me.tasaDescontada = me.tasaPeriodo / (1 + me.tasaPeriodo);
-                me.descuento = me.valor_nominal * me.tasaDescontada;
-                me.valor_neto = me.valor_nominal - me.descuento;
-                me.valor_recibido = (me.valor_neto - me.totalGastoInicial);
-                me.valor_entregado = me.valor_nominal + me.totalGastoFinal;
-                me.TCEA = (Math.pow(me.valor_entregado / me.valor_recibido, 360 / dias) - 1).toFixed(2);
-                console.log(me.totalGastoFinal);
-                console.log(me.totalGastoInicial);
-                console.log(me.valorM);
-                console.log(me.tasaPeriodo);
-                console.log(me.tasaDescontada);
-                console.log(me.descuento);
-                console.log(me.valor_neto);
-                console.log(me.valor_recibido);
-                console.log(me.valor_entregado);
-                console.log(me.TCEA);
+                me.tasaDescontada = parseFloat(me.tasaPeriodo) / (1 + parseFloat(me.tasaPeriodo));
+                me.descuento = parseFloat(me.valor_nominal) * parseFloat(me.tasaDescontada);
+                me.valor_neto = parseFloat(me.valor_nominal) - parseFloat(me.descuento);
+                me.valor_recibido = parseFloat(me.valor_neto) - parseFloat(me.totalGastoInicial);
+                me.valor_entregado = parseFloat(me.valor_nominal) + parseFloat(me.totalGastoFinal);
+                me.TCEA = (Math.pow(parseFloat(me.valor_entregado) / parseFloat(me.valor_recibido), dias/360) - 1).toFixed(2);
 
+                Console.log('Costo Finales Total: ', me.totalGastoInicial);
+                Console.log('Costo Iniciales Total: ', me.totalGastoInicial);
+                Console.log('Conversión de TNA a TEA: ', me.conversion);
+                Console.log('Tasa del Periodo: ', me.tasaPeriodo);
+                console.log('Tasa Descontada: ', me.tasaDescontada);
+                Console.log('Descuento: ', me.descuento);
             }
          }
      }
